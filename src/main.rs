@@ -3,16 +3,20 @@
 use std::time::Duration;
 
 use axum::{Router, routing::get};
-use metrics::{metrics_route, RESULTS_GAUGE};
+use health::health_route;
+use metrics::{RESULTS_GAUGE, metrics_route};
 use speedtest::speedtest;
 use tokio::{net::TcpListener, task, time};
 
+mod health;
 mod metrics;
 mod speedtest;
 
 #[tokio::main]
 async fn main() {
-    let app = Router::new().route("/metrics", get(metrics_route));
+    let app = Router::new()
+        .route("/", get(health_route))
+        .route("/metrics", get(metrics_route));
     let listener = TcpListener::bind("0.0.0.0:8080").await.unwrap();
 
     task::spawn(async move {
