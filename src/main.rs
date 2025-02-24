@@ -20,7 +20,7 @@ async fn main() {
     let listener = TcpListener::bind("0.0.0.0:8080").await.unwrap();
 
     task::spawn(async move {
-        let mut interval = time::interval(Duration::from_secs(30));
+        let mut interval = time::interval(Duration::from_secs(2 * 60));
 
         loop {
             interval.tick().await;
