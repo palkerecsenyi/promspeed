@@ -1,6 +1,6 @@
 #![forbid(unsafe_code)]
 
-use std::time::Duration;
+use std::{env, time::Duration};
 
 use axum::{Router, routing::get};
 use health::health_route;
@@ -19,8 +19,13 @@ async fn main() {
         .route("/metrics", get(metrics_route));
     let listener = TcpListener::bind("0.0.0.0:8080").await.unwrap();
 
+    let poll_frequency: u64 = env::var("PS_POLL_FREQ_SECS")
+        .unwrap_or("120".to_string())
+        .parse()
+        .expect("Env var to specify a valid number");
+
     task::spawn(async move {
-        let mut interval = time::interval(Duration::from_secs(2 * 60));
+        let mut interval = time::interval(Duration::from_secs(poll_frequency));
 
         loop {
             interval.tick().await;
