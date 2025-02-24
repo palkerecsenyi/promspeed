@@ -2,24 +2,20 @@
 
 use std::time::Duration;
 
-use prometheus::{Gauge, Opts, Registry};
+use axum::{Router, routing::get};
+use metrics::{metrics_route, RESULTS_GAUGE};
 use speedtest::speedtest;
-use tokio::{task, time};
+use tokio::{net::TcpListener, task, time};
 
+mod metrics;
 mod speedtest;
 
 #[tokio::main]
 async fn main() {
-    let gauge = Gauge::with_opts(Opts::new(
-        "promspeed_bytes_per_second",
-        "Results of the speed test in Bytes per second.",
-    ))
-    .unwrap();
+    let app = Router::new().route("/metrics", get(metrics_route));
+    let listener = TcpListener::bind("0.0.0.0:8080").await.unwrap();
 
-    let r = Registry::new();
-    r.register(Box::new(gauge.clone())).unwrap();
-
-    let forever = task::spawn(async move {
+    task::spawn(async move {
         let mut interval = time::interval(Duration::from_secs(30));
 
         loop {
@@ -28,9 +24,9 @@ async fn main() {
             println!("Running speed test...");
             let bytes_per_second = speedtest().await;
             println!("Done, got {:.2}B/s", bytes_per_second);
-            gauge.set(bytes_per_second);
+            RESULTS_GAUGE.set(bytes_per_second);
         }
     });
 
-    forever.await.unwrap();
+    axum::serve(listener, app).await.unwrap();
 }
