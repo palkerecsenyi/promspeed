@@ -2,7 +2,7 @@ use std::time::Instant;
 
 pub async fn speedtest() -> f64 {
     let now = Instant::now();
-    let bytes = reqwest::get("https://bigfile.fsn1.your-objectstorage.com/bigfile.bin")
+    let bytes = reqwest::get("https://speedtest.palk.dev/bigfile.bin")
         .await
         .expect("Random data to load.")
         .bytes()
