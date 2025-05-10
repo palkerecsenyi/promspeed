@@ -1,11 +1,10 @@
 use futures_util::stream::StreamExt;
 use std::time::Instant;
 
-pub async fn speedtest() -> f64 {
+pub async fn speedtest() -> Result<f64, anyhow::Error> {
     let now = Instant::now();
     let mut bytes = reqwest::get("https://speedtest.palk.dev/bigfile.bin")
-        .await
-        .expect("Random data to load.")
+        .await?
         .bytes_stream();
 
     let mut num_bytes = 0_f64;
@@ -15,5 +14,5 @@ pub async fn speedtest() -> f64 {
     }
 
     let elapsed = now.elapsed();
-    num_bytes / elapsed.as_secs_f64()
+    Ok(num_bytes / elapsed.as_secs_f64())
 }

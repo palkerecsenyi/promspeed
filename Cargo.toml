@@ -14,3 +14,4 @@ reqwest = { version = "0.12", default-features = false, features = [
 axum = { version = "0.8" }
 lazy_static = "1.5"
 futures-util = "0.3"
+anyhow = {version="1.0"}

@@ -32,8 +32,13 @@ async fn main() {
 
             println!("Running speed test...");
             let bytes_per_second = speedtest().await;
-            println!("Done, got {:.2}B/s", bytes_per_second);
-            RESULTS_GAUGE.set(bytes_per_second);
+
+            if let Ok(bytes_per_second) = bytes_per_second {
+                println!("Done, got {:.2}B/s", bytes_per_second);
+                RESULTS_GAUGE.set(bytes_per_second);
+            } else {
+                println!("Speed test failed: {}", bytes_per_second.unwrap_err());
+            }
         }
     });
 
